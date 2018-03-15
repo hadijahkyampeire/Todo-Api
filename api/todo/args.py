@@ -6,3 +6,7 @@ todo_args = {
     'day': fields.Str(required=True, validate=validate.Length(3)),
     'description':fields.Str()
 }
+
+todo_id_arg = {
+    'id': fields.Int()
+}
