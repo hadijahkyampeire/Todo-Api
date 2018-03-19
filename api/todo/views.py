@@ -17,11 +17,7 @@ class TodoListView(Resource):
         )
         new_todo.save()
         response = {
-            'messages': {
-                'todo': [
-                    'Todo successfully created'
-                ]
-            }
+            'messages': 'Todo successfully created'
         }
         return make_response(jsonify(response), 201)
 
@@ -38,20 +34,13 @@ class TodoListView(Resource):
             todo_data['done'] = todo.done
             items.append(todo_data)
         
-        response = {
-            'messages': {
-                'todo_items': [ 
-                    items
-                ]
-            }
-        }
+        response = { 'todo_items': items }
         return make_response(jsonify(response), 200)
 
 
 class TodoDetailView(Resource):
-    @use_args(todo_id_arg, locations=('querystring', 'form'))
-    def get(self, args):
-        todo = Todo.query.filter_by(id=args['id']).first()
+    def get(self, todo_id):
+        todo = Todo.query.filter_by(id=todo_id).first()
         if not todo:
             return make_response(jsonify({"message": {
                                 'todo_item': "No item found by id"}
@@ -70,29 +59,21 @@ class TodoDetailView(Resource):
         return make_response(jsonify(response), 200)
 
 
-
-    @use_args(todo_id_arg, locations=('querystring', 'form'))
-    def delete(self, args):
-        item = Todo.query.filter_by(id=args['id']).first()
+    def delete(self, todo_id):
+        item = Todo.query.filter_by(id=todo_id).first()
         if not item:
             return make_response(jsonify({"message": {
                                 'todo_item': "No item found by id"}
                             }), 404)
         item.delete()
         response = {
-            'messages': {
-                'todo': [
-                    'Todo successfully deleted'
-                ]
-            }
+            'messages':'Todo successfully deleted' 
         }
-        return make_response(jsonify(response), 204)
+        return make_response(jsonify(response), 200)
     
-
-    @use_args(todo_args, todo_id_arg, locations=('json','querystring', 'form'))
-    def put(self, args):
-        print(args)
-        item = Todo.query.filter_by(id=args['id']).first()
+    @use_args(todo_args, locations=('json', 'form'))
+    def put(self, args, todo_id):
+        item = Todo.query.filter_by(id=todo_id).first()
         if not item:
             return make_response(jsonify({"message": {
                                 'todo_item': "No item found by id"}
