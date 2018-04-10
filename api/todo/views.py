@@ -22,7 +22,7 @@ class TodoListView(Resource):
         return make_response(jsonify(response), 201)
 
     def get(self):
-        todos = Todo.query.all()
+        todos = Todo.query.filter_by(done=False)
         items = []
         for todo in todos:
             todo_data = {}
@@ -37,6 +37,22 @@ class TodoListView(Resource):
         response = { 'todo_items': items }
         return make_response(jsonify(response), 200)
 
+class DoneTodosView(Resource):
+    def get(self):
+        todos = Todo.query.filter_by(done=True)
+        doneitems = []
+        for todo in todos:
+            todo_data = {}
+            todo_data['id'] = todo.id
+            todo_data['name'] = todo.name
+            todo_data['description'] = todo.description
+            todo_data['date_created'] = todo.date_created
+            todo_data['day'] = todo.day
+            todo_data['done'] = todo.done
+            doneitems.append(todo_data)
+        
+        response = { 'todo_items': doneitems }
+        return make_response(jsonify(response), 200)
 
 class TodoDetailView(Resource):
     def get(self, todo_id):
@@ -81,6 +97,7 @@ class TodoDetailView(Resource):
         item.name = args['name']
         item.description = args['description']
         item.day = args['day']
+        item.done = args['done']
         item.save()
         response = {
             'messages': {
