@@ -1,6 +1,6 @@
 
 from flask import request, jsonify, make_response
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 from webargs.flaskparser import use_args
 from .args import todo_args
 from .args import todo_id_arg
@@ -22,7 +22,10 @@ class TodoListView(Resource):
         return make_response(jsonify(response), 201)
 
     def get(self):
-        todos = Todo.query.filter_by(done=False)
+        parser = reqparse.RequestParser()
+        parser.add_argument('done', help='done not provided')
+        args = parser.parse_args()
+        todos = Todo.query.filter_by(done=args['done'])
         items = []
         for todo in todos:
             todo_data = {}
@@ -35,23 +38,6 @@ class TodoListView(Resource):
             items.append(todo_data)
         
         response = { 'todo_items': items }
-        return make_response(jsonify(response), 200)
-
-class DoneTodosView(Resource):
-    def get(self):
-        todos = Todo.query.filter_by(done=True)
-        doneitems = []
-        for todo in todos:
-            todo_data = {}
-            todo_data['id'] = todo.id
-            todo_data['name'] = todo.name
-            todo_data['description'] = todo.description
-            todo_data['date_created'] = todo.date_created
-            todo_data['day'] = todo.day
-            todo_data['done'] = todo.done
-            doneitems.append(todo_data)
-        
-        response = { 'todo_items': doneitems }
         return make_response(jsonify(response), 200)
 
 class TodoDetailView(Resource):
